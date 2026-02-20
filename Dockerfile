@@ -1,0 +1,66 @@
+FROM runpod/base:1.0.3-cuda1290-ubuntu2404
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PIP_BREAK_SYSTEM_PACKAGES=1 \
+    PATH=/root/.local/bin:${PATH} \
+    HF_HOME=/workspace/.cache/huggingface \
+    HF_HUB_CACHE=/workspace/.cache/huggingface/hub \
+    HF_HUB_ENABLE_HF_TRANSFER=1 \
+    HF_XET_HIGH_PERFORMANCE=1 \
+    HF_HUB_DOWNLOAD_TIMEOUT=30 \
+    HF_HUB_ETAG_TIMEOUT=10 \
+    HF_MAX_WORKERS=16 \
+    JUPYTER_PORT=8888 \
+    JUPYTER_TOKEN=runpod \
+    RUN_BOOTSTRAP_ON_START=1 \
+    SKIP_MODEL_DOWNLOAD=0
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    git \
+    git-lfs \
+    jq \
+    python3-pip \
+    python3-venv \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git lfs install
+
+# uv is used by musubi-tuner's dependency workflow.
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Core runtime tooling, including hf CLI (replacement for huggingface-cli)
+# and hf_transfer extra for faster downloads.
+RUN python3 -m pip install --no-cache-dir --break-system-packages -U pip setuptools wheel && \
+    python3 -m pip install --no-cache-dir --break-system-packages \
+      "huggingface_hub[hf_transfer]" \
+      accelerate \
+      bitsandbytes \
+      jupyterlab \
+      tensorboard
+
+# Required by the user request: exact flash_attn build.
+RUN python3 -m pip install --no-cache-dir --break-system-packages \
+    "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl"
+
+WORKDIR /opt/runpod
+
+COPY entrypoint.sh /opt/runpod/entrypoint.sh
+COPY bootstrap.sh /opt/runpod/bootstrap.sh
+COPY download_models.sh /opt/runpod/download_models.sh
+COPY prepare_dataset.sh /opt/runpod/prepare_dataset.sh
+COPY train_lora_prodigy.sh /opt/runpod/train_lora_prodigy.sh
+COPY train_lora_adamw8bit.sh /opt/runpod/train_lora_adamw8bit.sh
+COPY convert_lora.sh /opt/runpod/convert_lora.sh
+COPY dataset.toml.example /opt/runpod/dataset.toml.example
+COPY sample_prompts.txt /opt/runpod/sample_prompts.txt
+COPY notebooks /opt/runpod/notebooks
+
+RUN chmod +x /opt/runpod/*.sh
+
+EXPOSE 8888
+
+ENTRYPOINT ["/opt/runpod/entrypoint.sh"]
