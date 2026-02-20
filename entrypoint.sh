@@ -21,5 +21,6 @@ exec jupyter lab \
   --no-browser \
   --IdentityProvider.token="${JUPYTER_TOKEN:-runpod}" \
   --ServerApp.password='' \
-  --ServerApp.jpserver_extensions="{'jupyter_archive': False, 'notebook': False}" \
+  --ServerApp.default_url=/lab \
+  --ServerApp.jpserver_extensions="{'jupyter_archive': False}" \
   --ServerApp.root_dir=/workspace

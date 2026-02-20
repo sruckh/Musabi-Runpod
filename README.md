@@ -18,6 +18,7 @@ No local GPU, Docker runtime, or local Python environment is required.
   - configure `accelerate`
   - download Z-Image Base/Turbo components
 - JupyterLab auto-launch for dataset upload + training workflow
+- Notebook 7 installed so both `/lab` and `/tree` routes are available
 
 ## Repository Layout
 

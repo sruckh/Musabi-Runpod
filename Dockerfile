@@ -44,6 +44,7 @@ RUN pip install --no-cache-dir -U pip setuptools wheel && \
       huggingface_hub \
       accelerate \
       jupyterlab \
+      notebook \
       tensorboard
 
 # Optional acceleration library for hf downloads.
