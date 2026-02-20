@@ -5,6 +5,10 @@ DATASET_CONFIG="${DATASET_CONFIG:-/workspace/dataset/dataset.toml}"
 VAE_PATH="${VAE_PATH:-/workspace/models/vae/ae.safetensors}"
 TEXT_ENCODER_PATH="${TEXT_ENCODER_PATH:-/workspace/models/text_encoder/model-00001-of-00003.safetensors}"
 TEXT_ENCODER_BATCH_SIZE="${TEXT_ENCODER_BATCH_SIZE:-4}"
+LATENT_DEVICE="${LATENT_DEVICE:-cuda}"
+LATENT_NUM_WORKERS="${LATENT_NUM_WORKERS:-1}"
+LATENT_BATCH_SIZE="${LATENT_BATCH_SIZE:-1}"
+DISABLE_CUDNN_BACKEND="${DISABLE_CUDNN_BACKEND:-1}"
 
 if [[ ! -f "${DATASET_CONFIG}" ]]; then
   echo "[prepare] Missing dataset config: ${DATASET_CONFIG}"
@@ -22,9 +26,19 @@ fi
 cd /workspace/musubi-tuner
 
 echo "[prepare] Caching latents"
-uv run python src/musubi_tuner/zimage_cache_latents.py \
-  --dataset_config "${SANITIZED_DATASET_CONFIG}" \
+LATENT_ARGS=(
+  --dataset_config "${SANITIZED_DATASET_CONFIG}"
   --vae "${VAE_PATH}"
+  --device "${LATENT_DEVICE}"
+  --num_workers "${LATENT_NUM_WORKERS}"
+  --batch_size "${LATENT_BATCH_SIZE}"
+)
+
+if [[ "${DISABLE_CUDNN_BACKEND}" == "1" ]]; then
+  LATENT_ARGS+=(--disable_cudnn_backend)
+fi
+
+uv run python src/musubi_tuner/zimage_cache_latents.py "${LATENT_ARGS[@]}"
 
 echo "[prepare] Caching text encoder outputs"
 TEXT_ENCODER_ARGS=(
