@@ -13,14 +13,26 @@ fi
 mkdir -p /workspace/notebooks
 cp --update=none /opt/runpod/notebooks/00_musubi_tuner_runpod.ipynb /workspace/notebooks/00_musubi_tuner_runpod.ipynb || true
 
-echo "[entrypoint] Launching JupyterLab on 0.0.0.0:${JUPYTER_PORT:-8888}"
-exec jupyter lab \
-  --ip=0.0.0.0 \
-  --port="${JUPYTER_PORT:-8888}" \
-  --allow-root \
-  --no-browser \
-  --IdentityProvider.token="${JUPYTER_TOKEN:-runpod}" \
-  --ServerApp.password='' \
-  --ServerApp.default_url=/lab \
-  --ServerApp.jpserver_extensions="{'jupyter_archive': False}" \
-  --ServerApp.root_dir=/workspace
+JUPYTER_DEFAULT_URL="${JUPYTER_DEFAULT_URL:-/tree}"
+
+cat > /tmp/jupyter_server_config.py <<'PYCFG'
+import os
+c = get_config()
+c.ServerApp.ip = "0.0.0.0"
+c.ServerApp.port = int(os.environ.get("JUPYTER_PORT", "8888"))
+c.ServerApp.allow_root = True
+c.ServerApp.open_browser = False
+c.ServerApp.root_dir = "/workspace"
+c.ServerApp.password = ""
+c.IdentityProvider.token = os.environ.get("JUPYTER_TOKEN", "runpod")
+c.ServerApp.default_url = os.environ.get("JUPYTER_DEFAULT_URL", "/tree")
+c.ServerApp.jpserver_extensions = {
+    "jupyterlab": True,
+    "notebook": True,
+    "nbclassic": True,
+    "jupyter_archive": False,
+}
+PYCFG
+
+echo "[entrypoint] Launching Jupyter Server on 0.0.0.0:${JUPYTER_PORT:-8888} with default URL ${JUPYTER_DEFAULT_URL}"
+exec jupyter server --config=/tmp/jupyter_server_config.py

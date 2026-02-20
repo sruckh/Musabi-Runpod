@@ -62,6 +62,7 @@ In Runpod template settings:
 - Exposed port: `8888`
 - Environment variables:
   - `JUPYTER_TOKEN` (required, set a strong token)
+  - `JUPYTER_DEFAULT_URL` (optional, defaults to `/tree`; set `/lab` for JupyterLab landing)
   - `HF_TOKEN` (optional; required for gated/private HF repos)
   - `HF_MAX_WORKERS=16` (optional tuning)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` only if models already present)
