@@ -60,9 +60,13 @@ Generated image tags include:
 In Runpod template settings:
 - Container image: `gemneye/musabi-runpod:latest` (or another generated tag)
 - Exposed port: `8888`
+- Exposed port: `6006` (optional, TensorBoard)
 - Environment variables:
   - `JUPYTER_TOKEN` (required, set a strong token)
   - `JUPYTER_DEFAULT_URL` (optional, defaults to `/lab`)
+  - `AUTO_START_TENSORBOARD` (optional, `1` to start TensorBoard on boot)
+  - `TENSORBOARD_PORT` (optional, defaults to `6006`)
+  - `TENSORBOARD_LOGDIR` (optional, defaults to `/workspace/logs`)
   - `HF_TOKEN` (optional; required for gated/private HF repos)
   - `HF_MAX_WORKERS=16` (optional tuning)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` only if models already present)
@@ -101,6 +105,8 @@ Bootstrap is marked complete by:
    - `/workspace/scripts/train_lora_prodigy.sh`
 5. Convert trained LoRA for ComfyUI:
    - `/workspace/scripts/convert_lora.sh /workspace/output/<checkpoint>.safetensors`
+6. Start TensorBoard (optional):
+   - `/workspace/scripts/start_tensorboard.sh`
 
 The starter notebook covers the same flow:
 - `/workspace/notebooks/00_musubi_tuner_runpod.ipynb`

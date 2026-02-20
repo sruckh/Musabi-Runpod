@@ -20,6 +20,12 @@ cp --update=none /opt/runpod/notebooks/00_musubi_tuner_runpod.ipynb /workspace/n
 
 JUPYTER_DEFAULT_URL="${JUPYTER_DEFAULT_URL:-/lab}"
 
+if [[ "${AUTO_START_TENSORBOARD:-0}" == "1" ]]; then
+  echo "[entrypoint] AUTO_START_TENSORBOARD=1 -> starting TensorBoard in background"
+  mkdir -p /workspace/logs
+  nohup /opt/runpod/start_tensorboard.sh >/workspace/logs/tensorboard.log 2>&1 &
+fi
+
 echo "[entrypoint] Launching JupyterLab on 0.0.0.0:${JUPYTER_PORT:-8888} with default URL ${JUPYTER_DEFAULT_URL}"
 exec jupyter lab \
   --ip=0.0.0.0 \

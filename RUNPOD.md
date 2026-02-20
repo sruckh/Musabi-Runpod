@@ -31,9 +31,13 @@ Use a registry image built remotely (for example, Docker Hub automated build or 
 
 - Container image: your remote registry image tag
 - Expose port: `8888`
+- Expose port: `6006` (TensorBoard, optional)
 - Recommended env vars:
   - `HF_TOKEN` (optional; needed for gated/private repos)
   - `JUPYTER_TOKEN` (set a strong value)
+  - `AUTO_START_TENSORBOARD=0` (set `1` to launch TensorBoard at container start)
+  - `TENSORBOARD_PORT=6006`
+  - `TENSORBOARD_LOGDIR=/workspace/logs`
   - `HF_MAX_WORKERS=16` (or tune per network speed)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` if models are already present)
   - `MUSUBI_PYTHON=3.10`
@@ -88,6 +92,8 @@ Subsequent boots skip setup using:
    - `/workspace/scripts/train_lora_prodigy.sh`
 5. Convert for ComfyUI:
    - `/workspace/scripts/convert_lora.sh <checkpoint.safetensors>`
+6. Start TensorBoard (optional):
+   - `/workspace/scripts/start_tensorboard.sh`
 
 ## `hf` Download Optimization Included
 

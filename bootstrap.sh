@@ -113,6 +113,7 @@ cp -f /opt/runpod/prepare_dataset.sh /workspace/scripts/prepare_dataset.sh
 cp -f /opt/runpod/train_lora_prodigy.sh /workspace/scripts/train_lora_prodigy.sh
 cp -f /opt/runpod/train_lora_adamw8bit.sh /workspace/scripts/train_lora_adamw8bit.sh
 cp -f /opt/runpod/convert_lora.sh /workspace/scripts/convert_lora.sh
+cp -f /opt/runpod/start_tensorboard.sh /workspace/scripts/start_tensorboard.sh
 chmod +x /workspace/scripts/*.sh
 
 if [[ ! -f /workspace/dataset/dataset.toml ]]; then

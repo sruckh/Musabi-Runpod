@@ -12,6 +12,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     HF_MAX_WORKERS=16 \
     JUPYTER_PORT=8888 \
     JUPYTER_TOKEN=runpod \
+    TENSORBOARD_PORT=6006 \
+    TENSORBOARD_LOGDIR=/workspace/logs \
+    AUTO_START_TENSORBOARD=0 \
     RUN_BOOTSTRAP_ON_START=1 \
     SKIP_MODEL_DOWNLOAD=0
 
@@ -71,12 +74,13 @@ COPY prepare_dataset.sh /opt/runpod/prepare_dataset.sh
 COPY train_lora_prodigy.sh /opt/runpod/train_lora_prodigy.sh
 COPY train_lora_adamw8bit.sh /opt/runpod/train_lora_adamw8bit.sh
 COPY convert_lora.sh /opt/runpod/convert_lora.sh
+COPY start_tensorboard.sh /opt/runpod/start_tensorboard.sh
 COPY dataset.toml.example /opt/runpod/dataset.toml.example
 COPY sample_prompts.txt /opt/runpod/sample_prompts.txt
 COPY notebooks /opt/runpod/notebooks
 
 RUN chmod +x /opt/runpod/*.sh
 
-EXPOSE 8888
+EXPOSE 8888 6006
 
 ENTRYPOINT ["/opt/runpod/entrypoint.sh"]
