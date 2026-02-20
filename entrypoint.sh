@@ -4,6 +4,11 @@ set -euo pipefail
 echo "[entrypoint] Starting musubi-tuner Runpod container"
 echo "[entrypoint] Workspace: /workspace"
 
+if [[ -z "${JUPYTER_TOKEN:-}" ]]; then
+  echo "[entrypoint] ERROR: JUPYTER_TOKEN is required. Set it in Runpod template env vars."
+  exit 1
+fi
+
 if [[ "${RUN_BOOTSTRAP_ON_START:-1}" == "1" ]]; then
   /opt/runpod/bootstrap.sh
 else
@@ -13,26 +18,24 @@ fi
 mkdir -p /workspace/notebooks
 cp --update=none /opt/runpod/notebooks/00_musubi_tuner_runpod.ipynb /workspace/notebooks/00_musubi_tuner_runpod.ipynb || true
 
-JUPYTER_DEFAULT_URL="${JUPYTER_DEFAULT_URL:-/tree}"
+JUPYTER_DEFAULT_URL="${JUPYTER_DEFAULT_URL:-/lab}"
 
-cat > /tmp/jupyter_server_config.py <<'PYCFG'
-import os
-c = get_config()
-c.ServerApp.ip = "0.0.0.0"
-c.ServerApp.port = int(os.environ.get("JUPYTER_PORT", "8888"))
-c.ServerApp.allow_root = True
-c.ServerApp.open_browser = False
-c.ServerApp.root_dir = "/workspace"
-c.ServerApp.password = ""
-c.IdentityProvider.token = os.environ.get("JUPYTER_TOKEN", "runpod")
-c.ServerApp.default_url = os.environ.get("JUPYTER_DEFAULT_URL", "/tree")
-c.ServerApp.jpserver_extensions = {
-    "jupyterlab": True,
-    "notebook": True,
-    "nbclassic": True,
-    "jupyter_archive": False,
-}
-PYCFG
-
-echo "[entrypoint] Launching Jupyter Server on 0.0.0.0:${JUPYTER_PORT:-8888} with default URL ${JUPYTER_DEFAULT_URL}"
-exec jupyter server --config=/tmp/jupyter_server_config.py
+echo "[entrypoint] Launching JupyterLab on 0.0.0.0:${JUPYTER_PORT:-8888} with default URL ${JUPYTER_DEFAULT_URL}"
+exec jupyter lab \
+  --ip=0.0.0.0 \
+  --port="${JUPYTER_PORT:-8888}" \
+  --no-browser \
+  --allow-root \
+  --ServerApp.default_url="${JUPYTER_DEFAULT_URL}" \
+  --NotebookApp.password='' \
+  --FileContentsManager.delete_to_trash=False \
+  --ServerApp.terminado_settings='{"shell_command":["/bin/bash"]}' \
+  --ServerApp.allow_origin='*' \
+  --ServerApp.preferred_dir="/workspace" \
+  --ServerApp.allow_remote_access=True \
+  --ServerApp.trust_xheaders=True \
+  --NotebookApp.token="${JUPYTER_TOKEN}" \
+  --ServerApp.token="${JUPYTER_TOKEN}" \
+  --IdentityProvider.token="${JUPYTER_TOKEN}" \
+  --ServerApp.root_dir="/workspace" \
+  --ServerApp.jpserver_extensions="{'jupyter_archive': False}"
