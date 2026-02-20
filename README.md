@@ -71,10 +71,11 @@ On first boot, the container:
 1. Creates `/workspace` folder structure
 2. Clones `musubi-tuner`
 3. Runs dependency sync with `uv`
-4. Writes a non-interactive `accelerate` config
-5. Downloads model files to `/workspace/models`
-6. Copies helper scripts to `/workspace/scripts`
-7. Launches JupyterLab
+4. Installs the requested flash-attn wheel in musubi-tuner environment
+5. Writes a non-interactive `accelerate` config
+6. Downloads model files to `/workspace/models`
+7. Copies helper scripts to `/workspace/scripts`
+8. Launches JupyterLab
 
 Bootstrap is marked complete by:
 - `/workspace/.musubi_bootstrap_done`
@@ -116,4 +117,5 @@ Configured defaults:
 
 - This repo intentionally excludes `musubi-tuner-zimage-runpod-guide.md` from git tracking via `.gitignore`.
 - The setup is intended for Runpod execution, not local runtime.
-- `bitsandbytes` is installed on a best-effort basis in image build. If unavailable, use `train_lora_prodigy.sh` (recommended path).
+- `hf_transfer` and `bitsandbytes` are best-effort installs. If unavailable, workflow still runs.
+- If `bitsandbytes` is unavailable, use `train_lora_prodigy.sh` (recommended path).

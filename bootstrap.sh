@@ -38,6 +38,15 @@ if ! uv sync --extra cu128; then
   uv sync
 fi
 
+echo "[bootstrap] Installing requested flash_attn wheel in musubi-tuner environment"
+uv run python -m pip install --no-cache-dir \
+  "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" || \
+  echo "[bootstrap] flash_attn wheel install failed in musubi env; continuing."
+
+echo "[bootstrap] Installing bitsandbytes in musubi-tuner environment (best-effort)"
+uv run python -m pip install --no-cache-dir bitsandbytes || \
+  echo "[bootstrap] bitsandbytes install failed in musubi env; AdamW8bit may be unavailable."
+
 echo "[bootstrap] Writing non-interactive accelerate config"
 mkdir -p /root/.cache/huggingface/accelerate
 cat > /root/.cache/huggingface/accelerate/default_config.yaml << 'EOF'

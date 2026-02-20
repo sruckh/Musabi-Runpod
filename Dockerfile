@@ -2,7 +2,7 @@ FROM runpod/base:1.0.3-cuda1290-ubuntu2404
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
-    PIP_BREAK_SYSTEM_PACKAGES=1 \
+    VIRTUAL_ENV=/opt/venv \
     PATH=/root/.local/bin:${PATH} \
     HF_HOME=/workspace/.cache/huggingface \
     HF_HUB_CACHE=/workspace/.cache/huggingface/hub \
@@ -32,23 +32,31 @@ RUN git lfs install
 # uv is used by musubi-tuner's dependency workflow.
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Core runtime tooling, including hf CLI (replacement for huggingface-cli)
-# and hf_transfer extra for faster downloads.
-RUN python3 -m pip install --no-cache-dir --break-system-packages -U pip setuptools wheel && \
-    python3 -m pip install --no-cache-dir --break-system-packages \
-      "huggingface_hub[hf_transfer]" \
+# Use a dedicated venv to avoid Debian/PEP668 system-packages conflicts.
+RUN python3 -m venv ${VIRTUAL_ENV}
+ENV PATH=${VIRTUAL_ENV}/bin:/root/.local/bin:${PATH}
+
+# Core runtime tooling, including hf CLI (replacement for huggingface-cli).
+RUN pip install --no-cache-dir -U pip setuptools wheel && \
+    pip install --no-cache-dir \
+      huggingface_hub \
       accelerate \
       jupyterlab \
       tensorboard
+
+# Optional acceleration library for hf downloads.
+RUN pip install --no-cache-dir hf_transfer || \
+    echo "hf_transfer install failed; hf download will still work without transfer acceleration."
 
 # bitsandbytes can fail to install on some Python/CUDA/base image combinations.
 # Keep image build green and use Prodigy path when unavailable.
 RUN python3 -m pip install --no-cache-dir --break-system-packages bitsandbytes || \
     echo "bitsandbytes install failed; AdamW8bit optimizer may be unavailable in this image."
 
-# Required by the user request: exact flash_attn build.
-RUN python3 -m pip install --no-cache-dir --break-system-packages \
-    "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl"
+# Required by the user request: exact flash_attn build (best-effort at image build).
+RUN pip install --no-cache-dir \
+    "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" || \
+    echo "flash_attn wheel install at image build failed; bootstrap will install it in musubi-tuner env."
 
 WORKDIR /opt/runpod
 
