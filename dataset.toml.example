@@ -6,7 +6,6 @@ caption_extension = ".txt"
 batch_size = 1
 enable_bucket = true
 bucket_no_upscale = false
-shuffle_caption = false
 
 [[datasets]]
 image_directory = "/workspace/dataset/images"
