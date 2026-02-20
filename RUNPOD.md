@@ -38,6 +38,8 @@ Use a registry image built remotely (for example, Docker Hub automated build or 
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` if models are already present)
   - `MUSUBI_PYTHON=3.10`
   - `MUSUBI_CUDA_EXTRA=cu130` (for `runpod/base:1.0.3-cuda1290-ubuntu2404`)
+  - `MUSUBI_TORCH_VERSION=2.9.1`
+  - `MUSUBI_TORCHVISION_VERSION=0.24.1`
 
 ## GitHub Actions (Remote Build/Push Only)
 

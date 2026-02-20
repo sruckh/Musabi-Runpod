@@ -68,6 +68,8 @@ In Runpod template settings:
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` only if models already present)
   - `MUSUBI_PYTHON=3.10` (recommended operational default for musubi env)
   - `MUSUBI_CUDA_EXTRA=cu130` (recommended with CUDA 12.9 base image)
+  - `MUSUBI_TORCH_VERSION=2.9.1` (default pin)
+  - `MUSUBI_TORCHVISION_VERSION=0.24.1` (default pin)
 
 Container default shell directory:
 - `/workspace` (persistent volume)

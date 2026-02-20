@@ -39,6 +39,8 @@ unset VIRTUAL_ENV || true
 
 MUSUBI_PYTHON="${MUSUBI_PYTHON:-3.10}"
 MUSUBI_CUDA_EXTRA="${MUSUBI_CUDA_EXTRA:-cu130}"
+MUSUBI_TORCH_VERSION="${MUSUBI_TORCH_VERSION:-2.9.1}"
+MUSUBI_TORCHVISION_VERSION="${MUSUBI_TORCHVISION_VERSION:-0.24.1}"
 
 echo "[bootstrap] uv sync with Python ${MUSUBI_PYTHON} and extra ${MUSUBI_CUDA_EXTRA}"
 if ! uv sync --python "${MUSUBI_PYTHON}" --extra "${MUSUBI_CUDA_EXTRA}"; then
@@ -49,6 +51,17 @@ fi
 echo "[bootstrap] musubi environment Python version:"
 uv run python -V
 echo "[bootstrap] musubi torch/CUDA:"
+uv run python -c "import torch; print('torch', torch.__version__, 'cuda', torch.version.cuda)"
+
+echo "[bootstrap] Pinning torch stack in musubi env: torch==${MUSUBI_TORCH_VERSION}, torchvision==${MUSUBI_TORCHVISION_VERSION} (${MUSUBI_CUDA_EXTRA})"
+TORCH_INDEX_URL="https://download.pytorch.org/whl/${MUSUBI_CUDA_EXTRA}"
+uv run python -m pip install --no-cache-dir --force-reinstall \
+  --index-url "${TORCH_INDEX_URL}" \
+  "torch==${MUSUBI_TORCH_VERSION}" \
+  "torchvision==${MUSUBI_TORCHVISION_VERSION}" || \
+  echo "[bootstrap] Torch pinning failed; continuing with uv-resolved torch version."
+
+echo "[bootstrap] musubi torch/CUDA after pin attempt:"
 uv run python -c "import torch; print('torch', torch.__version__, 'cuda', torch.version.cuda)"
 
 echo "[bootstrap] Installing requested flash_attn wheel in musubi-tuner environment"
