@@ -10,6 +10,9 @@ DATASET_CONFIG="${DATASET_CONFIG:-/workspace/dataset/dataset.toml}"
 VAE_PATH="${VAE_PATH:-/workspace/models/vae/ae.safetensors}"
 TEXT_ENCODER_PATH="${TEXT_ENCODER_PATH:-/workspace/models/text_encoder/model-00001-of-00003.safetensors}"
 TEXT_ENCODER_BATCH_SIZE="${TEXT_ENCODER_BATCH_SIZE:-4}"
+TEXT_ENCODER_DEVICE="${TEXT_ENCODER_DEVICE:-cpu}"
+TEXT_ENCODER_NUM_WORKERS="${TEXT_ENCODER_NUM_WORKERS:-1}"
+TEXT_ENCODER_SKIP_EXISTING="${TEXT_ENCODER_SKIP_EXISTING:-1}"
 LATENT_DEVICE="${LATENT_DEVICE:-cuda}"
 LATENT_NUM_WORKERS="${LATENT_NUM_WORKERS:-1}"
 LATENT_BATCH_SIZE="${LATENT_BATCH_SIZE:-1}"
@@ -50,10 +53,16 @@ TEXT_ENCODER_ARGS=(
   --dataset_config "${SANITIZED_DATASET_CONFIG}"
   --text_encoder "${TEXT_ENCODER_PATH}"
   --batch_size "${TEXT_ENCODER_BATCH_SIZE}"
+  --device "${TEXT_ENCODER_DEVICE}"
+  --num_workers "${TEXT_ENCODER_NUM_WORKERS}"
 )
 
 if [[ "${ENABLE_FP8_LLM:-1}" == "1" ]]; then
   TEXT_ENCODER_ARGS+=(--fp8_llm)
+fi
+
+if [[ "${TEXT_ENCODER_SKIP_EXISTING}" == "1" ]]; then
+  TEXT_ENCODER_ARGS+=(--skip_existing)
 fi
 
 uv run python src/musubi_tuner/zimage_cache_text_encoder_outputs.py "${TEXT_ENCODER_ARGS[@]}"
