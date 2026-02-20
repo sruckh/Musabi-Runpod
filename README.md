@@ -83,7 +83,7 @@ Container default shell directory:
 On first boot, the container:
 1. Creates `/workspace` folder structure
 2. Clones `musubi-tuner`
-3. Runs dependency sync with `uv` using Python 3.12
+3. Runs dependency sync with `uv` (defaults: Python 3.10 + `cu128`, configurable by env vars)
 4. Installs the requested flash-attn wheel in musubi-tuner environment
 5. Writes a non-interactive `accelerate` config
 6. Downloads model files to `/workspace/models`
@@ -110,6 +110,43 @@ Bootstrap is marked complete by:
 
 The starter notebook covers the same flow:
 - `/workspace/notebooks/00_musubi_tuner_runpod.ipynb`
+
+## Training Depth Guidance
+
+The default script uses `MAX_TRAIN_EPOCHS=16`, which is often too short for identity LoRA quality.
+
+Estimate equivalent training depth by:
+- `effective_steps_per_epoch ~= (num_images * num_repeats) / batch_size`
+- `effective_total_steps ~= effective_steps_per_epoch * epochs`
+
+Example with `54` images, `num_repeats=1`, `batch_size=2`:
+- steps/epoch ~= `27`
+- `16` epochs ~= `432` effective steps
+- `2000` to `3000` effective steps ~= about `74` to `111` epochs
+
+Recommended starting point for this setup:
+- `MAX_TRAIN_EPOCHS=80`
+- `SAVE_EVERY_N_EPOCHS=1` or `2`
+
+Command example:
+```bash
+MAX_TRAIN_EPOCHS=80 SAVE_EVERY_N_EPOCHS=2 /workspace/scripts/train_lora_prodigy.sh
+```
+
+## TensorBoard Convergence Signals
+
+Useful tags in this workflow:
+- `loss/average`: primary convergence signal
+- `loss/epoch`: slower trend confirmation
+- `loss/current`: noisy per-step value
+- `lr/d*lr/unet`: effective LR proxy for Prodigy behavior
+
+Convergence is typically when:
+- `loss/average` flattens over many steps
+- `loss/epoch` stops improving meaningfully for 2+ epochs
+- no instability spikes dominate `loss/current`
+
+Always choose final checkpoint by image quality/identity tests, not loss alone.
 
 ## Hugging Face Download Optimization
 
