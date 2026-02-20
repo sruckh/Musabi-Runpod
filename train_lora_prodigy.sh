@@ -32,6 +32,11 @@ fi
 
 cd /workspace/musubi-tuner
 
+if ! uv run python -c "import prodigyopt" >/dev/null 2>&1; then
+  echo "[train] prodigyopt not found in musubi environment; installing"
+  uv run python -m pip install --no-cache-dir prodigyopt
+fi
+
 TRAIN_ARGS=(
   --num_cpu_threads_per_process 2
   --mixed_precision bf16

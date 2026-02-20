@@ -81,6 +81,10 @@ echo "[bootstrap] Installing hf_transfer in musubi-tuner environment (best-effor
 uv run python -m pip install --no-cache-dir hf_transfer || \
   echo "[bootstrap] hf_transfer install failed in musubi env; runtime scripts disable it by default."
 
+echo "[bootstrap] Installing prodigy optimizer package in musubi-tuner environment (best-effort)"
+uv run python -m pip install --no-cache-dir prodigyopt || \
+  echo "[bootstrap] prodigyopt install failed in musubi env; Prodigy optimizer will be unavailable."
+
 echo "[bootstrap] Writing non-interactive accelerate config"
 mkdir -p /root/.cache/huggingface/accelerate
 cat > /root/.cache/huggingface/accelerate/default_config.yaml << 'EOF'
