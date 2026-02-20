@@ -38,9 +38,13 @@ RUN python3 -m pip install --no-cache-dir --break-system-packages -U pip setupto
     python3 -m pip install --no-cache-dir --break-system-packages \
       "huggingface_hub[hf_transfer]" \
       accelerate \
-      bitsandbytes \
       jupyterlab \
       tensorboard
+
+# bitsandbytes can fail to install on some Python/CUDA/base image combinations.
+# Keep image build green and use Prodigy path when unavailable.
+RUN python3 -m pip install --no-cache-dir --break-system-packages bitsandbytes || \
+    echo "bitsandbytes install failed; AdamW8bit optimizer may be unavailable in this image."
 
 # Required by the user request: exact flash_attn build.
 RUN python3 -m pip install --no-cache-dir --break-system-packages \

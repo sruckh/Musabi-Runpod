@@ -116,3 +116,4 @@ Configured defaults:
 
 - This repo intentionally excludes `musubi-tuner-zimage-runpod-guide.md` from git tracking via `.gitignore`.
 - The setup is intended for Runpod execution, not local runtime.
+- `bitsandbytes` is installed on a best-effort basis in image build. If unavailable, use `train_lora_prodigy.sh` (recommended path).
