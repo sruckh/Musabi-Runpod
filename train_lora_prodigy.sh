@@ -47,8 +47,6 @@ TRAIN_ARGS=(
   --discrete_flow_shift 2.0
   --optimizer_type prodigy
   --learning_rate 1.0
-  --prodigy_d_coef 1.0
-  --prodigy_safeguard_warmup true
   --lr_scheduler constant
   --network_module networks.lora_zimage
   --network_dim "${NETWORK_DIM}"
