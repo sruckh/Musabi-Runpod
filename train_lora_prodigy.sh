@@ -13,6 +13,8 @@ SAMPLE_PROMPTS="${SAMPLE_PROMPTS:-/workspace/dataset/sample_prompts.txt}"
 
 NETWORK_DIM="${NETWORK_DIM:-32}"
 NETWORK_ALPHA="${NETWORK_ALPHA:-16}"
+PRODIGY_D_COEF="${PRODIGY_D_COEF:-1.0}"
+PRODIGY_SAFEGUARD_WARMUP="${PRODIGY_SAFEGUARD_WARMUP:-true}"
 MAX_TRAIN_EPOCHS="${MAX_TRAIN_EPOCHS:-16}"
 SAVE_EVERY_N_EPOCHS="${SAVE_EVERY_N_EPOCHS:-2}"
 OUTPUT_DIR="${OUTPUT_DIR:-/workspace/output}"
@@ -37,6 +39,12 @@ if ! uv run python -c "import prodigyopt" >/dev/null 2>&1; then
   uv run python -m pip install --no-cache-dir prodigyopt
 fi
 
+if [[ "${PRODIGY_SAFEGUARD_WARMUP,,}" == "1" || "${PRODIGY_SAFEGUARD_WARMUP,,}" == "true" || "${PRODIGY_SAFEGUARD_WARMUP,,}" == "yes" ]]; then
+  PRODIGY_SAFEGUARD_WARMUP_PY="True"
+else
+  PRODIGY_SAFEGUARD_WARMUP_PY="False"
+fi
+
 TRAIN_ARGS=(
   --num_cpu_threads_per_process 2
   --mixed_precision bf16
@@ -50,7 +58,8 @@ TRAIN_ARGS=(
   --timestep_sampling shift
   --weighting_scheme none
   --discrete_flow_shift 2.0
-  --optimizer_type prodigy
+  --optimizer_type prodigyopt.Prodigy
+  --optimizer_args "d_coef=${PRODIGY_D_COEF}" "safeguard_warmup=${PRODIGY_SAFEGUARD_WARMUP_PY}"
   --learning_rate 1.0
   --lr_scheduler constant
   --network_module networks.lora_zimage
