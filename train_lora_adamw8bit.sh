@@ -75,4 +75,4 @@ if [[ -n "${BLOCKS_TO_SWAP:-}" ]]; then
   TRAIN_ARGS+=(--blocks_to_swap "${BLOCKS_TO_SWAP}")
 fi
 
-accelerate launch "${TRAIN_ARGS[@]}"
+uv run accelerate launch "${TRAIN_ARGS[@]}"
