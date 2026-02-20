@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# musubi-tuner's uv environment may not include hf_transfer.
+# Disable transfer backend for reliability when tokenizers/models are fetched by transformers.
+export HF_HUB_ENABLE_HF_TRANSFER=0
+export HF_XET_HIGH_PERFORMANCE="${HF_XET_HIGH_PERFORMANCE:-1}"
+
 DATASET_CONFIG="${DATASET_CONFIG:-/workspace/dataset/dataset.toml}"
 VAE_PATH="${VAE_PATH:-/workspace/models/vae/ae.safetensors}"
 TEXT_ENCODER_PATH="${TEXT_ENCODER_PATH:-/workspace/models/text_encoder/model-00001-of-00003.safetensors}"

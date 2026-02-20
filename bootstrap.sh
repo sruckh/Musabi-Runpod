@@ -54,6 +54,10 @@ echo "[bootstrap] Installing bitsandbytes in musubi-tuner environment (best-effo
 uv run python -m pip install --no-cache-dir bitsandbytes || \
   echo "[bootstrap] bitsandbytes install failed in musubi env; AdamW8bit may be unavailable."
 
+echo "[bootstrap] Installing hf_transfer in musubi-tuner environment (best-effort)"
+uv run python -m pip install --no-cache-dir hf_transfer || \
+  echo "[bootstrap] hf_transfer install failed in musubi env; runtime scripts disable it by default."
+
 echo "[bootstrap] Writing non-interactive accelerate config"
 mkdir -p /root/.cache/huggingface/accelerate
 cat > /root/.cache/huggingface/accelerate/default_config.yaml << 'EOF'
