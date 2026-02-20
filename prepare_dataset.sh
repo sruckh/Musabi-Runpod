@@ -16,7 +16,10 @@ TEXT_ENCODER_SKIP_EXISTING="${TEXT_ENCODER_SKIP_EXISTING:-1}"
 LATENT_DEVICE="${LATENT_DEVICE:-cuda}"
 LATENT_NUM_WORKERS="${LATENT_NUM_WORKERS:-1}"
 LATENT_BATCH_SIZE="${LATENT_BATCH_SIZE:-1}"
+LATENT_SKIP_EXISTING="${LATENT_SKIP_EXISTING:-1}"
 DISABLE_CUDNN_BACKEND="${DISABLE_CUDNN_BACKEND:-1}"
+RUN_LATENT_CACHE="${RUN_LATENT_CACHE:-1}"
+RUN_TEXT_ENCODER_CACHE="${RUN_TEXT_ENCODER_CACHE:-1}"
 
 if [[ ! -f "${DATASET_CONFIG}" ]]; then
   echo "[prepare] Missing dataset config: ${DATASET_CONFIG}"
@@ -33,38 +36,52 @@ fi
 
 cd /workspace/musubi-tuner
 
-echo "[prepare] Caching latents"
-LATENT_ARGS=(
-  --dataset_config "${SANITIZED_DATASET_CONFIG}"
-  --vae "${VAE_PATH}"
-  --device "${LATENT_DEVICE}"
-  --num_workers "${LATENT_NUM_WORKERS}"
-  --batch_size "${LATENT_BATCH_SIZE}"
-)
+echo "[prepare] Settings: RUN_LATENT_CACHE=${RUN_LATENT_CACHE}, LATENT_DEVICE=${LATENT_DEVICE}, RUN_TEXT_ENCODER_CACHE=${RUN_TEXT_ENCODER_CACHE}, TEXT_ENCODER_DEVICE=${TEXT_ENCODER_DEVICE}"
 
-if [[ "${DISABLE_CUDNN_BACKEND}" == "1" ]]; then
-  LATENT_ARGS+=(--disable_cudnn_backend)
+if [[ "${RUN_LATENT_CACHE}" == "1" ]]; then
+  echo "[prepare] Caching latents"
+  LATENT_ARGS=(
+    --dataset_config "${SANITIZED_DATASET_CONFIG}"
+    --vae "${VAE_PATH}"
+    --device "${LATENT_DEVICE}"
+    --num_workers "${LATENT_NUM_WORKERS}"
+    --batch_size "${LATENT_BATCH_SIZE}"
+  )
+
+  if [[ "${DISABLE_CUDNN_BACKEND}" == "1" ]]; then
+    LATENT_ARGS+=(--disable_cudnn_backend)
+  fi
+
+  if [[ "${LATENT_SKIP_EXISTING}" == "1" ]]; then
+    LATENT_ARGS+=(--skip_existing)
+  fi
+
+  uv run python src/musubi_tuner/zimage_cache_latents.py "${LATENT_ARGS[@]}"
+else
+  echo "[prepare] RUN_LATENT_CACHE=0 -> skipping latent caching"
 fi
 
-uv run python src/musubi_tuner/zimage_cache_latents.py "${LATENT_ARGS[@]}"
+if [[ "${RUN_TEXT_ENCODER_CACHE}" == "1" ]]; then
+  echo "[prepare] Caching text encoder outputs"
+  TEXT_ENCODER_ARGS=(
+    --dataset_config "${SANITIZED_DATASET_CONFIG}"
+    --text_encoder "${TEXT_ENCODER_PATH}"
+    --batch_size "${TEXT_ENCODER_BATCH_SIZE}"
+    --device "${TEXT_ENCODER_DEVICE}"
+    --num_workers "${TEXT_ENCODER_NUM_WORKERS}"
+  )
 
-echo "[prepare] Caching text encoder outputs"
-TEXT_ENCODER_ARGS=(
-  --dataset_config "${SANITIZED_DATASET_CONFIG}"
-  --text_encoder "${TEXT_ENCODER_PATH}"
-  --batch_size "${TEXT_ENCODER_BATCH_SIZE}"
-  --device "${TEXT_ENCODER_DEVICE}"
-  --num_workers "${TEXT_ENCODER_NUM_WORKERS}"
-)
+  if [[ "${ENABLE_FP8_LLM:-1}" == "1" ]]; then
+    TEXT_ENCODER_ARGS+=(--fp8_llm)
+  fi
 
-if [[ "${ENABLE_FP8_LLM:-1}" == "1" ]]; then
-  TEXT_ENCODER_ARGS+=(--fp8_llm)
+  if [[ "${TEXT_ENCODER_SKIP_EXISTING}" == "1" ]]; then
+    TEXT_ENCODER_ARGS+=(--skip_existing)
+  fi
+
+  uv run python src/musubi_tuner/zimage_cache_text_encoder_outputs.py "${TEXT_ENCODER_ARGS[@]}"
+else
+  echo "[prepare] RUN_TEXT_ENCODER_CACHE=0 -> skipping text encoder caching"
 fi
-
-if [[ "${TEXT_ENCODER_SKIP_EXISTING}" == "1" ]]; then
-  TEXT_ENCODER_ARGS+=(--skip_existing)
-fi
-
-uv run python src/musubi_tuner/zimage_cache_text_encoder_outputs.py "${TEXT_ENCODER_ARGS[@]}"
 
 echo "[prepare] Dataset cache complete"
