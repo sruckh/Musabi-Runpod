@@ -37,18 +37,28 @@ cd /workspace/musubi-tuner
 # Avoid leaking global venv into uv project env resolution.
 unset VIRTUAL_ENV || true
 
-if ! uv sync --python 3.12 --extra cu128; then
-  echo "[bootstrap] uv sync with Python 3.12 and cu128 failed, retrying without extra"
-  uv sync --python 3.12
+MUSUBI_PYTHON="${MUSUBI_PYTHON:-3.10}"
+MUSUBI_CUDA_EXTRA="${MUSUBI_CUDA_EXTRA:-cu130}"
+
+echo "[bootstrap] uv sync with Python ${MUSUBI_PYTHON} and extra ${MUSUBI_CUDA_EXTRA}"
+if ! uv sync --python "${MUSUBI_PYTHON}" --extra "${MUSUBI_CUDA_EXTRA}"; then
+  echo "[bootstrap] uv sync failed with extra ${MUSUBI_CUDA_EXTRA}, retrying without CUDA extra"
+  uv sync --python "${MUSUBI_PYTHON}"
 fi
 
 echo "[bootstrap] musubi environment Python version:"
 uv run python -V
+echo "[bootstrap] musubi torch/CUDA:"
+uv run python -c "import torch; print('torch', torch.__version__, 'cuda', torch.version.cuda)"
 
 echo "[bootstrap] Installing requested flash_attn wheel in musubi-tuner environment"
-uv run python -m pip install --no-cache-dir \
-  "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" || \
-  echo "[bootstrap] flash_attn wheel install failed in musubi env; continuing."
+if uv run python -c "import sys; exit(0 if sys.version_info[:2] == (3, 12) else 1)"; then
+  uv run python -m pip install --no-cache-dir \
+    "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" || \
+    echo "[bootstrap] flash_attn wheel install failed in musubi env; continuing."
+else
+  echo "[bootstrap] Skipping requested cp312 flash_attn wheel because musubi env is not Python 3.12."
+fi
 
 echo "[bootstrap] Installing bitsandbytes in musubi-tuner environment (best-effort)"
 uv run python -m pip install --no-cache-dir bitsandbytes || \

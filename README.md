@@ -66,6 +66,8 @@ In Runpod template settings:
   - `HF_TOKEN` (optional; required for gated/private HF repos)
   - `HF_MAX_WORKERS=16` (optional tuning)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` only if models already present)
+  - `MUSUBI_PYTHON=3.10` (recommended operational default for musubi env)
+  - `MUSUBI_CUDA_EXTRA=cu130` (recommended with CUDA 12.9 base image)
 
 Container default shell directory:
 - `/workspace` (persistent volume)

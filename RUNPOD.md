@@ -36,6 +36,8 @@ Use a registry image built remotely (for example, Docker Hub automated build or 
   - `JUPYTER_TOKEN` (set a strong value)
   - `HF_MAX_WORKERS=16` (or tune per network speed)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` if models are already present)
+  - `MUSUBI_PYTHON=3.10`
+  - `MUSUBI_CUDA_EXTRA=cu130` (for `runpod/base:1.0.3-cuda1290-ubuntu2404`)
 
 ## GitHub Actions (Remote Build/Push Only)
 
