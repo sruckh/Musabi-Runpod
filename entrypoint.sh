@@ -11,7 +11,7 @@ else
 fi
 
 mkdir -p /workspace/notebooks
-cp -n /opt/runpod/notebooks/00_musubi_tuner_runpod.ipynb /workspace/notebooks/00_musubi_tuner_runpod.ipynb || true
+cp --update=none /opt/runpod/notebooks/00_musubi_tuner_runpod.ipynb /workspace/notebooks/00_musubi_tuner_runpod.ipynb || true
 
 echo "[entrypoint] Launching JupyterLab on 0.0.0.0:${JUPYTER_PORT:-8888}"
 exec jupyter lab \
@@ -19,6 +19,7 @@ exec jupyter lab \
   --port="${JUPYTER_PORT:-8888}" \
   --allow-root \
   --no-browser \
-  --ServerApp.token="${JUPYTER_TOKEN:-runpod}" \
+  --IdentityProvider.token="${JUPYTER_TOKEN:-runpod}" \
   --ServerApp.password='' \
+  --ServerApp.jpserver_extensions="{'jupyter_archive': False, 'notebook': False}" \
   --ServerApp.root_dir=/workspace

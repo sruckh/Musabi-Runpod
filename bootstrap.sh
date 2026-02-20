@@ -84,7 +84,7 @@ if [[ ! -f /workspace/dataset/sample_prompts.txt ]]; then
   cp /opt/runpod/sample_prompts.txt /workspace/dataset/sample_prompts.txt
 fi
 
-cp -n /opt/runpod/notebooks/00_musubi_tuner_runpod.ipynb /workspace/notebooks/00_musubi_tuner_runpod.ipynb || true
+cp --update=none /opt/runpod/notebooks/00_musubi_tuner_runpod.ipynb /workspace/notebooks/00_musubi_tuner_runpod.ipynb || true
 
 if [[ "${SKIP_MODEL_DOWNLOAD:-0}" != "1" ]]; then
   /workspace/scripts/download_models.sh
