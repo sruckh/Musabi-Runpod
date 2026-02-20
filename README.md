@@ -66,6 +66,9 @@ In Runpod template settings:
   - `HF_MAX_WORKERS=16` (optional tuning)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` only if models already present)
 
+Container default shell directory:
+- `/workspace` (persistent volume)
+
 ## First-Boot Behavior
 
 On first boot, the container:

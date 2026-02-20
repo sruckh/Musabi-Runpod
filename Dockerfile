@@ -61,7 +61,7 @@ RUN pip install --no-cache-dir \
     "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" || \
     echo "flash_attn wheel install at image build failed; bootstrap will install it in musubi-tuner env."
 
-WORKDIR /opt/runpod
+WORKDIR /workspace
 
 COPY entrypoint.sh /opt/runpod/entrypoint.sh
 COPY bootstrap.sh /opt/runpod/bootstrap.sh
