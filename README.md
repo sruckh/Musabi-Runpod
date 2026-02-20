@@ -67,7 +67,7 @@ In Runpod template settings:
   - `HF_MAX_WORKERS=16` (optional tuning)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` only if models already present)
   - `MUSUBI_PYTHON=3.10` (recommended operational default for musubi env)
-  - `MUSUBI_CUDA_EXTRA=cu130` (recommended with CUDA 12.9 base image)
+  - `MUSUBI_CUDA_EXTRA=cu128` (recommended with CUDA 12.9 base image for driver compatibility)
   - `MUSUBI_TORCH_VERSION=2.9.1` (default pin)
   - `MUSUBI_TORCHVISION_VERSION=0.24.1` (default pin)
 
