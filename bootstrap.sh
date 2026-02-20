@@ -33,10 +33,17 @@ fi
 
 echo "[bootstrap] Installing musubi-tuner dependencies with uv"
 cd /workspace/musubi-tuner
-if ! uv sync --extra cu128; then
-  echo "[bootstrap] uv sync --extra cu128 failed, retrying with default extras"
-  uv sync
+
+# Avoid leaking global venv into uv project env resolution.
+unset VIRTUAL_ENV || true
+
+if ! uv sync --python 3.12 --extra cu128; then
+  echo "[bootstrap] uv sync with Python 3.12 and cu128 failed, retrying without extra"
+  uv sync --python 3.12
 fi
+
+echo "[bootstrap] musubi environment Python version:"
+uv run python -V
 
 echo "[bootstrap] Installing requested flash_attn wheel in musubi-tuner environment"
 uv run python -m pip install --no-cache-dir \

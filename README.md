@@ -70,7 +70,7 @@ In Runpod template settings:
 On first boot, the container:
 1. Creates `/workspace` folder structure
 2. Clones `musubi-tuner`
-3. Runs dependency sync with `uv`
+3. Runs dependency sync with `uv` using Python 3.12
 4. Installs the requested flash-attn wheel in musubi-tuner environment
 5. Writes a non-interactive `accelerate` config
 6. Downloads model files to `/workspace/models`
