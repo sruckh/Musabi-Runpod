@@ -126,11 +126,11 @@ Example with `54` images, `num_repeats=1`, `batch_size=2`:
 
 Recommended starting point for this setup:
 - `MAX_TRAIN_EPOCHS=80`
-- `SAVE_EVERY_N_EPOCHS=1` or `2`
+- `SAVE_EVERY_N_EPOCHS=20` (default, fewer checkpoints)
 
 Command example:
 ```bash
-MAX_TRAIN_EPOCHS=80 SAVE_EVERY_N_EPOCHS=2 /workspace/scripts/train_lora_prodigy.sh
+MAX_TRAIN_EPOCHS=80 SAVE_EVERY_N_EPOCHS=20 /workspace/scripts/train_lora_prodigy.sh
 ```
 
 ## TensorBoard Convergence Signals
