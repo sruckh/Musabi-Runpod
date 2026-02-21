@@ -23,6 +23,6 @@ cd /workspace/musubi-tuner
 uv run python src/musubi_tuner/convert_lora.py \
   --input "${INPUT_PATH}" \
   --output "${OUTPUT_PATH}" \
-  --target comfy
+  --target other
 
 echo "[convert] Wrote ${OUTPUT_PATH}"

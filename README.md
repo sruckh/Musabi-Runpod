@@ -171,3 +171,4 @@ Configured defaults:
 - The setup is intended for Runpod execution, not local runtime.
 - `hf_transfer` and `bitsandbytes` are best-effort installs. If unavailable, workflow still runs.
 - If `bitsandbytes` is unavailable, use `train_lora_prodigy.sh` (recommended path).
+- Current musubi `convert_lora.py` uses `--target other` for ComfyUI-compatible output; `--target comfy` is not a valid option in this build.
