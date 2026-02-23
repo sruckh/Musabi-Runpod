@@ -7,7 +7,7 @@ No local GPU, Docker runtime, or local Python environment is required.
 
 ## What This Provides
 
-- Base image: `runpod/base:1.0.3-cuda1290-ubuntu2404`
+- Base image: `runpod/base:1.0.3-cuda1281-ubuntu2404`
 - Exact FlashAttention wheel:
   - `flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl`
 - `hf` CLI usage (not deprecated `huggingface-cli`)
@@ -71,7 +71,7 @@ In Runpod template settings:
   - `HF_MAX_WORKERS=16` (optional tuning)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` only if models already present)
   - `MUSUBI_PYTHON=3.10` (recommended operational default for musubi env)
-  - `MUSUBI_CUDA_EXTRA=cu128` (recommended with CUDA 12.9 base image for driver compatibility)
+  - `MUSUBI_CUDA_EXTRA=cu128` (matches CUDA 12.8 base image)
   - `MUSUBI_TORCH_VERSION=2.9.1` (default pin)
   - `MUSUBI_TORCHVISION_VERSION=0.24.1` (default pin)
 

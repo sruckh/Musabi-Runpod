@@ -1,7 +1,7 @@
 # Runpod Container: Musubi-Tuner + Z-Image Base
 
 This repo now includes a Runpod-ready container that:
-- starts from `runpod/base:1.0.3-cuda1290-ubuntu2404`
+- starts from `runpod/base:1.0.3-cuda1281-ubuntu2404`
 - installs your requested flash-attn wheel:
   `flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl`
 - uses `hf` (not deprecated `huggingface-cli`)
@@ -41,7 +41,7 @@ Use a registry image built remotely (for example, Docker Hub automated build or 
   - `HF_MAX_WORKERS=16` (or tune per network speed)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` if models are already present)
   - `MUSUBI_PYTHON=3.10`
-  - `MUSUBI_CUDA_EXTRA=cu128` (for `runpod/base:1.0.3-cuda1290-ubuntu2404`)
+  - `MUSUBI_CUDA_EXTRA=cu128` (matches CUDA 12.8 base image)
   - `MUSUBI_TORCH_VERSION=2.9.1`
   - `MUSUBI_TORCHVISION_VERSION=0.24.1`
 
