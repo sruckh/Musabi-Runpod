@@ -111,9 +111,35 @@ Bootstrap is marked complete by:
 The starter notebook covers the same flow:
 - `/workspace/notebooks/00_musubi_tuner_runpod.ipynb`
 
-## Training Depth Guidance
+## Training Environment Variables
 
-The default script uses `MAX_TRAIN_EPOCHS=16`, which is often too short for identity LoRA quality.
+The training scripts (`train_lora_prodigy.sh` and `train_lora_adamw8bit.sh`) support the following environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MAX_TRAIN_EPOCHS` | `80` | Total number of training epochs |
+| `SAVE_EVERY_N_EPOCHS` | `20` | Save a checkpoint every N epochs |
+| `NETWORK_DIM` | `32` | LoRA rank (network dimension) |
+| `NETWORK_ALPHA` | `16` | LoRA alpha (scaling factor) |
+| `LEARNING_RATE` | `1e-4` | (AdamW8bit only) Fixed learning rate |
+| `PRODIGY_D_COEF` | `1.0` | (Prodigy only) D coefficient for adaptive LR |
+| `PRODIGY_SAFEGUARD_WARMUP` | `true` | (Prodigy only) Enable safeguard warmup |
+| `SEED` | `42` | Random seed for reproducibility |
+| `OUTPUT_NAME` | `character_lora_v1` | Output filename prefix |
+| `OUTPUT_DIR` | `/workspace/output` | Directory for checkpoints |
+| `LOGGING_DIR` | `/workspace/logs` | Directory for TensorBoard logs |
+| `BLOCKS_TO_SWAP` | (unset) | Offload N blocks to CPU for low VRAM |
+
+Model paths (usually don't need to change):
+- `DIT_PATH` - Path to DiT model
+- `VAE_PATH` - Path to VAE model  
+- `TEXT_ENCODER_PATH` - Path to text encoder
+- `DATASET_CONFIG` - Path to dataset.toml
+- `SAMPLE_PROMPTS` - Path to sample prompts file
+
+### Training Depth Guidance
+
+The default `MAX_TRAIN_EPOCHS=80` works well for identity LoRAs.
 
 Estimate equivalent training depth by:
 - `effective_steps_per_epoch ~= (num_images * num_repeats) / batch_size`
@@ -121,16 +147,21 @@ Estimate equivalent training depth by:
 
 Example with `54` images, `num_repeats=1`, `batch_size=2`:
 - steps/epoch ~= `27`
-- `16` epochs ~= `432` effective steps
-- `2000` to `3000` effective steps ~= about `74` to `111` epochs
+- `80` epochs ~= `2,160` effective steps
 
-Recommended starting point for this setup:
-- `MAX_TRAIN_EPOCHS=80`
-- `SAVE_EVERY_N_EPOCHS=20` (default, fewer checkpoints)
-
-Command example:
+Command examples:
 ```bash
-MAX_TRAIN_EPOCHS=80 SAVE_EVERY_N_EPOCHS=20 /workspace/scripts/train_lora_prodigy.sh
+# Default settings (80 epochs, save every 20)
+/workspace/scripts/train_lora_prodigy.sh
+
+# Custom epochs and checkpoint frequency
+MAX_TRAIN_EPOCHS=100 SAVE_EVERY_N_EPOCHS=25 /workspace/scripts/train_lora_prodigy.sh
+
+# Lower rank for style LoRAs
+NETWORK_DIM=16 NETWORK_ALPHA=8 /workspace/scripts/train_lora_prodigy.sh
+
+# Low VRAM (16GB GPUs)
+BLOCKS_TO_SWAP=20 /workspace/scripts/train_lora_prodigy.sh
 ```
 
 ## TensorBoard Convergence Signals
