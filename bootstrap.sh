@@ -55,7 +55,7 @@ uv run python -c "import torch; print('torch', torch.__version__, 'cuda', torch.
 
 echo "[bootstrap] Pinning torch stack in musubi env: torch==${MUSUBI_TORCH_VERSION}, torchvision==${MUSUBI_TORCHVISION_VERSION} (${MUSUBI_CUDA_EXTRA})"
 TORCH_INDEX_URL="https://download.pytorch.org/whl/${MUSUBI_CUDA_EXTRA}"
-uv run python -m pip install --no-cache-dir --force-reinstall \
+uv pip install --no-cache-dir --force-reinstall \
   --index-url "${TORCH_INDEX_URL}" \
   "torch==${MUSUBI_TORCH_VERSION}" \
   "torchvision==${MUSUBI_TORCHVISION_VERSION}" || \
@@ -66,7 +66,7 @@ uv run python -c "import torch; print('torch', torch.__version__, 'cuda', torch.
 
 echo "[bootstrap] Installing requested flash_attn wheel in musubi-tuner environment"
 if uv run python -c "import sys; exit(0 if sys.version_info[:2] == (3, 12) else 1)"; then
-  uv run python -m pip install --no-cache-dir \
+  uv pip install --no-cache-dir \
     "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" || \
     echo "[bootstrap] flash_attn wheel install failed in musubi env; continuing."
 else
@@ -74,15 +74,15 @@ else
 fi
 
 echo "[bootstrap] Installing bitsandbytes in musubi-tuner environment (best-effort)"
-uv run python -m pip install --no-cache-dir bitsandbytes || \
+uv pip install --no-cache-dir bitsandbytes || \
   echo "[bootstrap] bitsandbytes install failed in musubi env; AdamW8bit may be unavailable."
 
 echo "[bootstrap] Installing hf_transfer in musubi-tuner environment (best-effort)"
-uv run python -m pip install --no-cache-dir hf_transfer || \
+uv pip install --no-cache-dir hf_transfer || \
   echo "[bootstrap] hf_transfer install failed in musubi env; runtime scripts disable it by default."
 
 echo "[bootstrap] Installing prodigy optimizer package in musubi-tuner environment (best-effort)"
-uv run python -m pip install --no-cache-dir prodigyopt || \
+uv pip install --no-cache-dir prodigyopt || \
   echo "[bootstrap] prodigyopt install failed in musubi env; Prodigy optimizer will be unavailable."
 
 echo "[bootstrap] Writing non-interactive accelerate config"

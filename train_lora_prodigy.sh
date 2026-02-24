@@ -36,7 +36,7 @@ cd /workspace/musubi-tuner
 
 if ! uv run python -c "import prodigyopt" >/dev/null 2>&1; then
   echo "[train] prodigyopt not found in musubi environment; installing"
-  uv run python -m pip install --no-cache-dir prodigyopt
+  uv pip install --no-cache-dir prodigyopt
 fi
 
 if [[ "${PRODIGY_SAFEGUARD_WARMUP,,}" == "1" || "${PRODIGY_SAFEGUARD_WARMUP,,}" == "true" || "${PRODIGY_SAFEGUARD_WARMUP,,}" == "yes" ]]; then
