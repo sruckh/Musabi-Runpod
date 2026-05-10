@@ -42,9 +42,12 @@ Use a registry image built remotely (for example, Docker Hub automated build or 
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` if models are already present)
   - `MUSUBI_PYTHON=3.10`
   - `MUSUBI_CUDA_EXTRA=cu128` (matches CUDA 12.8 base image)
-  - `MUSUBI_TORCH_VERSION=2.9.1`
-  - `MUSUBI_TORCHVISION_VERSION=0.24.1`
-  - `MUSUBI_TORCHAUDIO_VERSION=2.9.1`
+  - `MUSUBI_TORCH_PIN=auto` (keep uv-resolved torch if it imports; pin only as repair)
+  - `MUSUBI_TORCH_VERSION=2.9.1` (repair pin only)
+  - `MUSUBI_TORCHVISION_VERSION=0.24.1` (repair pin only)
+  - `MUSUBI_TORCHAUDIO_VERSION=2.9.1` (repair pin only)
+  - `UV_CACHE_DIR=/workspace/.cache/uv`
+  - `UV_LINK_MODE=hardlink`
   - `BOOTSTRAP_NET_RETRIES=5`
   - `BOOTSTRAP_NET_RETRY_DELAY=20`
   - `HF_DOWNLOAD_RETRIES=5`
@@ -77,7 +80,7 @@ After first successful workflow run, use one of these image tags in Runpod:
 On first container boot:
 1. Clones `musubi-tuner` into `/workspace/musubi-tuner`
 2. Installs musubi dependencies via `uv sync --extra cu128`
-3. Pins and validates the PyTorch stack, preferring the venv-bundled CUDA/NCCL libraries
+3. Validates the uv-resolved PyTorch stack and only pins torch if repair is needed or explicitly forced
 4. Configures `accelerate`
 5. Downloads Z-Image model files into `/workspace/models/*`
 6. Copies scripts into `/workspace/scripts`

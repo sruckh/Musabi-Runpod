@@ -74,9 +74,12 @@ In Runpod template settings:
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` only if models already present)
   - `MUSUBI_PYTHON=3.10` (recommended operational default for musubi env)
   - `MUSUBI_CUDA_EXTRA=cu128` (matches CUDA 12.8 base image)
-  - `MUSUBI_TORCH_VERSION=2.9.1` (default pin)
-  - `MUSUBI_TORCHVISION_VERSION=0.24.1` (default pin)
-  - `MUSUBI_TORCHAUDIO_VERSION=2.9.1` (default pin)
+  - `MUSUBI_TORCH_PIN=auto` (keep uv-resolved torch if it imports; pin only as repair)
+  - `MUSUBI_TORCH_VERSION=2.9.1` (repair pin only)
+  - `MUSUBI_TORCHVISION_VERSION=0.24.1` (repair pin only)
+  - `MUSUBI_TORCHAUDIO_VERSION=2.9.1` (repair pin only)
+  - `UV_CACHE_DIR=/workspace/.cache/uv` (keeps uv cache on the persistent workspace volume)
+  - `UV_LINK_MODE=hardlink` (avoids slow full copies when the workspace filesystem supports it)
   - `BOOTSTRAP_NET_RETRIES=5` (retry count for bootstrap package installs)
   - `BOOTSTRAP_NET_RETRY_DELAY=20` (seconds between bootstrap retries)
 
@@ -89,7 +92,7 @@ On first boot, the container:
 1. Creates `/workspace` folder structure
 2. Clones `musubi-tuner`
 3. Runs dependency sync with `uv` (defaults: Python 3.10 + `cu128`, configurable by env vars)
-4. Pins and validates the PyTorch stack, preferring the venv-bundled CUDA/NCCL libraries
+4. Validates the uv-resolved PyTorch stack and only pins torch if repair is needed or explicitly forced
 5. Installs the requested flash-attn wheel in musubi-tuner environment
 6. Writes a non-interactive `accelerate` config
 7. Downloads model files to `/workspace/models`
