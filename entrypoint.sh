@@ -15,6 +15,11 @@ else
   echo "[entrypoint] RUN_BOOTSTRAP_ON_START=0 -> skipping bootstrap"
 fi
 
+if [[ -f /workspace/scripts/musubi_env.sh ]]; then
+  # shellcheck disable=SC1091
+  source /workspace/scripts/musubi_env.sh
+fi
+
 mkdir -p /workspace/notebooks
 cp --update=none /opt/runpod/notebooks/00_musubi_tuner_runpod.ipynb /workspace/notebooks/00_musubi_tuner_runpod.ipynb || true
 

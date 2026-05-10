@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ -f /workspace/scripts/musubi_env.sh ]]; then
+  # shellcheck disable=SC1091
+  source /workspace/scripts/musubi_env.sh
+fi
+
 TENSORBOARD_HOST="${TENSORBOARD_HOST:-0.0.0.0}"
 TENSORBOARD_PORT="${TENSORBOARD_PORT:-6006}"
 TENSORBOARD_LOGDIR="${TENSORBOARD_LOGDIR:-/workspace/logs}"

@@ -44,6 +44,11 @@ Use a registry image built remotely (for example, Docker Hub automated build or 
   - `MUSUBI_CUDA_EXTRA=cu128` (matches CUDA 12.8 base image)
   - `MUSUBI_TORCH_VERSION=2.9.1`
   - `MUSUBI_TORCHVISION_VERSION=0.24.1`
+  - `MUSUBI_TORCHAUDIO_VERSION=2.9.1`
+  - `BOOTSTRAP_NET_RETRIES=5`
+  - `BOOTSTRAP_NET_RETRY_DELAY=20`
+  - `HF_DOWNLOAD_RETRIES=5`
+  - `HF_DOWNLOAD_RETRY_DELAY=30`
 
 ## GitHub Actions (Remote Build/Push Only)
 
@@ -72,10 +77,11 @@ After first successful workflow run, use one of these image tags in Runpod:
 On first container boot:
 1. Clones `musubi-tuner` into `/workspace/musubi-tuner`
 2. Installs musubi dependencies via `uv sync --extra cu128`
-3. Configures `accelerate`
-4. Downloads Z-Image model files into `/workspace/models/*`
-5. Copies scripts into `/workspace/scripts`
-6. Launches JupyterLab
+3. Pins and validates the PyTorch stack, preferring the venv-bundled CUDA/NCCL libraries
+4. Configures `accelerate`
+5. Downloads Z-Image model files into `/workspace/models/*`
+6. Copies scripts into `/workspace/scripts`
+7. Launches JupyterLab
 
 Subsequent boots skip setup using:
 - `/workspace/.musubi_bootstrap_done`
@@ -102,6 +108,8 @@ This setup uses `hf` CLI and enables:
 - `HF_XET_HIGH_PERFORMANCE=1`
 - `HF_HUB_DOWNLOAD_TIMEOUT=30`
 - `HF_HUB_ETAG_TIMEOUT=10`
+- `HF_DOWNLOAD_RETRIES=5`
+- `HF_DOWNLOAD_RETRY_DELAY=30`
 - `hf download ... --max-workers ${HF_MAX_WORKERS}`
 
 From current Hub docs, `hf download` supports:

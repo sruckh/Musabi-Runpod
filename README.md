@@ -69,11 +69,16 @@ In Runpod template settings:
   - `TENSORBOARD_LOGDIR` (optional, defaults to `/workspace/logs`)
   - `HF_TOKEN` (optional; required for gated/private HF repos)
   - `HF_MAX_WORKERS=16` (optional tuning)
+  - `HF_DOWNLOAD_RETRIES=5` (retry count for transient Hub/DNS failures)
+  - `HF_DOWNLOAD_RETRY_DELAY=30` (seconds between Hub download retries)
   - `SKIP_MODEL_DOWNLOAD=0` (set `1` only if models already present)
   - `MUSUBI_PYTHON=3.10` (recommended operational default for musubi env)
   - `MUSUBI_CUDA_EXTRA=cu128` (matches CUDA 12.8 base image)
   - `MUSUBI_TORCH_VERSION=2.9.1` (default pin)
   - `MUSUBI_TORCHVISION_VERSION=0.24.1` (default pin)
+  - `MUSUBI_TORCHAUDIO_VERSION=2.9.1` (default pin)
+  - `BOOTSTRAP_NET_RETRIES=5` (retry count for bootstrap package installs)
+  - `BOOTSTRAP_NET_RETRY_DELAY=20` (seconds between bootstrap retries)
 
 Container default shell directory:
 - `/workspace` (persistent volume)
@@ -84,11 +89,12 @@ On first boot, the container:
 1. Creates `/workspace` folder structure
 2. Clones `musubi-tuner`
 3. Runs dependency sync with `uv` (defaults: Python 3.10 + `cu128`, configurable by env vars)
-4. Installs the requested flash-attn wheel in musubi-tuner environment
-5. Writes a non-interactive `accelerate` config
-6. Downloads model files to `/workspace/models`
-7. Copies helper scripts to `/workspace/scripts`
-8. Launches JupyterLab
+4. Pins and validates the PyTorch stack, preferring the venv-bundled CUDA/NCCL libraries
+5. Installs the requested flash-attn wheel in musubi-tuner environment
+6. Writes a non-interactive `accelerate` config
+7. Downloads model files to `/workspace/models`
+8. Copies helper scripts to `/workspace/scripts`
+9. Launches JupyterLab
 
 Bootstrap is marked complete by:
 - `/workspace/.musubi_bootstrap_done`
@@ -186,6 +192,8 @@ Configured defaults:
 - `HF_XET_HIGH_PERFORMANCE=1`
 - `HF_HUB_DOWNLOAD_TIMEOUT=30`
 - `HF_HUB_ETAG_TIMEOUT=10`
+- `HF_DOWNLOAD_RETRIES=5`
+- `HF_DOWNLOAD_RETRY_DELAY=30`
 - `hf download ... --max-workers ${HF_MAX_WORKERS}`
 
 `hf download` usage supports:

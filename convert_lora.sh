@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ -f /workspace/scripts/musubi_env.sh ]]; then
+  # shellcheck disable=SC1091
+  source /workspace/scripts/musubi_env.sh
+fi
+
 if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <input_lora.safetensors> [output_lora.safetensors]"
   exit 1

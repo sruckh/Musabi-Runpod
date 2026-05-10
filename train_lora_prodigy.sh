@@ -5,6 +5,11 @@ set -euo pipefail
 export HF_HUB_ENABLE_HF_TRANSFER=0
 export HF_XET_HIGH_PERFORMANCE="${HF_XET_HIGH_PERFORMANCE:-1}"
 
+if [[ -f /workspace/scripts/musubi_env.sh ]]; then
+  # shellcheck disable=SC1091
+  source /workspace/scripts/musubi_env.sh
+fi
+
 DIT_PATH="${DIT_PATH:-/workspace/models/dit/diffusion_pytorch_model-00001-of-00002.safetensors}"
 VAE_PATH="${VAE_PATH:-/workspace/models/vae/ae.safetensors}"
 TEXT_ENCODER_PATH="${TEXT_ENCODER_PATH:-/workspace/models/text_encoder/model-00001-of-00003.safetensors}"

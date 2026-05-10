@@ -8,6 +8,31 @@ export HF_XET_HIGH_PERFORMANCE="${HF_XET_HIGH_PERFORMANCE:-1}"
 export HF_HUB_DOWNLOAD_TIMEOUT="${HF_HUB_DOWNLOAD_TIMEOUT:-30}"
 export HF_HUB_ETAG_TIMEOUT="${HF_HUB_ETAG_TIMEOUT:-10}"
 MAX_WORKERS="${HF_MAX_WORKERS:-16}"
+HF_DOWNLOAD_RETRIES="${HF_DOWNLOAD_RETRIES:-5}"
+HF_DOWNLOAD_RETRY_DELAY="${HF_DOWNLOAD_RETRY_DELAY:-30}"
+
+run_with_retries() {
+  local label="$1"
+  shift
+  local attempt=1
+
+  until "$@"; do
+    local status=$?
+    if (( attempt >= HF_DOWNLOAD_RETRIES )); then
+      echo "[download] ${label} failed after ${attempt} attempts"
+      return "${status}"
+    fi
+    echo "[download] ${label} failed on attempt ${attempt}/${HF_DOWNLOAD_RETRIES}; retrying in ${HF_DOWNLOAD_RETRY_DELAY}s"
+    sleep "${HF_DOWNLOAD_RETRY_DELAY}"
+    attempt=$((attempt + 1))
+  done
+}
+
+hf_download() {
+  local label="$1"
+  shift
+  run_with_retries "${label}" hf download "$@"
+}
 
 mkdir -p \
   "${HF_HOME}" \
@@ -28,7 +53,7 @@ if [[ \
   echo "[download] Z-Image Base DiT already present"
 else
   echo "[download] Downloading Z-Image Base DiT"
-  hf download Tongyi-MAI/Z-Image \
+  hf_download "Z-Image Base DiT download" Tongyi-MAI/Z-Image \
     transformer/diffusion_pytorch_model-00001-of-00002.safetensors \
     transformer/diffusion_pytorch_model-00002-of-00002.safetensors \
     --local-dir /workspace/models/dit \
@@ -42,7 +67,7 @@ if [[ -f /workspace/models/vae/ae.safetensors ]]; then
   echo "[download] VAE already present"
 else
   echo "[download] Downloading VAE"
-  hf download Comfy-Org/z_image_turbo \
+  hf_download "VAE download" Comfy-Org/z_image_turbo \
     split_files/vae/ae.safetensors \
     --local-dir /workspace/models/vae \
     --max-workers "${MAX_WORKERS}"
@@ -59,7 +84,7 @@ if [[ \
   echo "[download] Text encoder shards already present"
 else
   echo "[download] Downloading text encoder shards"
-  hf download Tongyi-MAI/Z-Image-Turbo \
+  hf_download "text encoder shards download" Tongyi-MAI/Z-Image-Turbo \
     text_encoder/model-00001-of-00003.safetensors \
     text_encoder/model-00002-of-00003.safetensors \
     text_encoder/model-00003-of-00003.safetensors \
